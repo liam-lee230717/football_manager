@@ -67,7 +67,7 @@ export default function Layout({ children }) {
         <div className="p-4">
           {/* 메뉴 헤더 */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">축구 포메이션 매니저</h2>
+            <h2 className="text-xl font-bold text-gray-900">FOOTBALL MANAGER</h2>
             <button
               onClick={closeMenu}
               className="p-2 rounded-md hover:bg-gray-100 transition-colors"
