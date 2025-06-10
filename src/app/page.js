@@ -1,12 +1,31 @@
+// src/app/page.js (업데이트된 Home 컴포넌트)
 'use client'
 
 import Link from 'next/link'
 import Image from 'next/image'
 import Layout from './components/Layout'
+import { useModal } from './lib/hooks'
+import {FormationCreateModal} from "@/app/components/common/modal";
 
 export default function Home() {
+  // 모달 데이터 정의
+  const modalData = {
+    create: {
+      type: FormationCreateModal
+    }
+  };
+
+  const { openModal, ModalPortal } = useModal(modalData);
+
+  const handleCreateFormation = () => {
+    openModal('create');
+  };
+
   return (
     <Layout>
+      {/* LayerDetail div 추가 - 모달 포털용 */}
+      <div id="LayerDetail"></div>
+
       {/* Hero Section */}
       <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black overflow-hidden">
         {/* Background Pattern */}
@@ -39,15 +58,15 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/edit-formation"
+                <button
+                  onClick={handleCreateFormation}
                   className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   포메이션 만들기
-                </Link>
+                </button>
 
                 <Link
                   href="/formation-history"
@@ -144,17 +163,20 @@ export default function Home() {
           <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
             몇 분 만에 전문적인 포메이션을 만들고, 팀의 승률을 높여보세요
           </p>
-          <Link
-            href="/edit-formation"
+          <button
+            onClick={handleCreateFormation}
             className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             포메이션 만들기 시작
             <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </Link>
+          </button>
         </div>
       </section>
+
+      {/* 모달 포털 */}
+      <ModalPortal />
     </Layout>
   )
 }

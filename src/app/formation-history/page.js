@@ -4,11 +4,42 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Layout from '../components/Layout'
 import { supabase } from '../lib/supabase'
+import { useModal } from '../lib/hooks'
+import {FormationCreateModal} from "@/app/components/common/modal";
 
 export default function FormationHistory() {
   const [formations, setFormations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const refreshFormations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('formations')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setFormations(data)
+    } catch (error) {
+      console.error('Error refreshing formations:', error)
+    }
+  }
+
+  const modalData = {
+    create: {
+      type: FormationCreateModal,
+      props: {
+        onFormationCreated: refreshFormations
+      }
+    }
+  };
+
+  const { openModal, ModalPortal } = useModal(modalData);
+
+  const handleCreateFormation = () => {
+    openModal('create');
+  };
 
   useEffect(() => {
     async function fetchFormations() {
@@ -42,9 +73,11 @@ export default function FormationHistory() {
 
       if (error) throw error
 
+      // 삭제 후 상태 업데이트
       setFormations(formations.filter(f => f.id !== formationId))
-      alert('포메이션이 삭제되었습니다.')
+      alert('포메이션이 성공적으로 삭제되었습니다.')
     } catch (error) {
+      console.error('Delete error:', error)
       alert('삭제 중 오류가 발생했습니다: ' + error.message)
     }
   }
@@ -77,6 +110,9 @@ export default function FormationHistory() {
 
   return (
     <Layout>
+      {/* LayerDetail div 추가 - 모달 포털용 */}
+      <div id="LayerDetail"></div>
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -84,15 +120,15 @@ export default function FormationHistory() {
               <h2 className="text-3xl font-bold text-gray-900 mb-2">포메이션 히스토리</h2>
               <p className="text-gray-600">생성된 포메이션을 확인하고 관리하세요</p>
             </div>
-            <Link
-              href="/edit-formation"
+            <button
+              onClick={handleCreateFormation}
               className="inline-flex items-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               새 포메이션
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -143,18 +179,21 @@ export default function FormationHistory() {
             <div className="text-gray-300 text-6xl mb-6">⚽</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">포메이션이 없습니다</h3>
             <p className="text-gray-600 mb-6">첫 번째 포메이션을 만들어보세요!</p>
-            <Link
-              href="/edit-formation"
+            <button
+              onClick={handleCreateFormation}
               className="inline-flex items-center px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               포메이션 만들기
-            </Link>
+            </button>
           </div>
         )}
       </div>
+
+      {/* 모달 포털 */}
+      <ModalPortal />
     </Layout>
   )
 }
