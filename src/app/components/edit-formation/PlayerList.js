@@ -28,7 +28,7 @@ export default function PlayerList({
     setEditingPlayer(player.id)
     setEditForm({
       name: player.player_name,
-      jersey: player.jersey_number.toString(),
+      jersey: player.jersey_number,
       position: player.position_role || ''
     })
   }
@@ -39,9 +39,13 @@ export default function PlayerList({
   }
 
   const saveEdit = async (playerId) => {
+    if (!editForm.name.trim()){
+      return alert("선수 이름을 입력 해 주세요.")
+    }
+
     const success = await onUpdatePlayer(playerId, {
       player_name: editForm.name,
-      jersey_number: parseInt(editForm.jersey),
+      jersey_number: editForm.jersey ? parseInt(editForm.jersey) : null,
       position_role: editForm.position || null
     })
 

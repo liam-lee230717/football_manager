@@ -67,7 +67,7 @@ export default function FootballField({
   return (
     <div className="bg-white rounded-lg shadow-md border p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-gray-900 text-base">축구장</h3>
+        <h3 className="font-bold text-gray-900 text-base">필드</h3>
         <div className="flex gap-3">
           <button
             onClick={captureField}

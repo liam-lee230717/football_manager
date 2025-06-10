@@ -20,11 +20,13 @@ export default function PlayerForm({ onAddPlayer }) {
   const [position, setPosition] = useState('')
 
   const handleSubmit = async () => {
-    if (!playerName.trim() || !jerseyNumber) return
+    if (!playerName.trim()){
+      return alert("선수 이름을 입력 해 주세요.")
+    }
 
     const success = await onAddPlayer({
       player_name: playerName,
-      jersey_number: parseInt(jerseyNumber),
+      jersey_number: jerseyNumber ? parseInt(jerseyNumber) : null,
       position_role: position || null
     })
 
