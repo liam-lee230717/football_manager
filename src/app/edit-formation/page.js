@@ -39,7 +39,7 @@ export default function EditFormation() {
     setSubstitutes,
     allPlayers,
     setAllPlayers,
-    updatePlayer // updatePlayer 함수 전달
+    updatePlayer
   })
 
   return (
@@ -57,19 +57,23 @@ export default function EditFormation() {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* 선수 관리 섹션 */}
-          <div className="xl:col-span-1">
-            <PlayerForm onAddPlayer={addPlayer} />
+          <div className="xl:col-span-1 flex flex-col h-[calc(100vh-250px)]">
+            <div className="flex-shrink-0">
+              <PlayerForm onAddPlayer={addPlayer} />
+            </div>
 
-            <PlayerList
-              allPlayers={allPlayers}
-              onDragStart={handleDragStart}
-              onRemovePlayer={removePlayer}
-              onUpdatePlayer={updatePlayer}
-            />
+            <div className="flex-1 min-h-0">
+              <PlayerList
+                allPlayers={allPlayers}
+                onDragStart={handleDragStart}
+                onRemovePlayer={removePlayer}
+                onUpdatePlayer={updatePlayer}
+              />
+            </div>
           </div>
 
           {/* 축구장 섹션 */}
-          <div className="xl:col-span-2">
+          <div className="xl:col-span-2 min-h-[50vh] lg:min-h-[60vh] xl:min-h-[70vh]">
             <FootballField
               players={players}
               onDragStart={handleDragStart}
@@ -81,7 +85,7 @@ export default function EditFormation() {
           </div>
 
           {/* 교체 명단 섹션 */}
-          <div className="xl:col-span-1">
+          <div className="xl:col-span-1 h-[calc(100vh-250px)]">
             <SubstituteList
               substitutes={substitutes}
               onDragStart={handleDragStart}

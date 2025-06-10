@@ -65,8 +65,8 @@ export default function FootballField({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md border p-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white rounded-lg shadow-md border h-full flex flex-col">
+      <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
         <h3 className="font-bold text-gray-900 text-base">필드</h3>
         <div className="flex gap-3">
           <button
@@ -88,53 +88,54 @@ export default function FootballField({
         </div>
       </div>
 
-      <div
-        ref={fieldRef}
-        className="relative w-full mx-auto bg-center bg-contain bg-no-repeat"
-        style={{
-          backgroundImage: "url('/Image/field.png')",
-          backgroundSize: 'contain',
-          height: '600px',
-          maxWidth: '800px',
-          padding: '50px'
-        }}
-        onDragOver={onDragOver}
-        onDrop={handleDrop}
-      >
-        {/* 필드에 배치된 선수들 */}
-        {players.filter(p => p.position_x !== null).map(player => (
-          <div
-            key={player.id}
-            className="absolute cursor-move transform -translate-x-1/2 -translate-y-1/2"
-            style={{
-              left: `${player.position_x}%`,
-              top: `${player.position_y}%`
-            }}
-            draggable
-            onDragStart={(e) => onDragStart(e, player)}
-            onClick={() => onPlayerClick(player)}
-          >
-            {/* 선수 번호 원 */}
-            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
-              {player.jersey_number}
+      <div className="flex-1 p-4">
+        <div
+          ref={fieldRef}
+          className="relative w-full h-full mx-auto bg-center bg-contain bg-no-repeat"
+          style={{
+            backgroundImage: "url('/Image/field.png')",
+            backgroundSize: 'contain',
+            maxWidth: '800px',
+            padding: '30px'
+          }}
+          onDragOver={onDragOver}
+          onDrop={handleDrop}
+        >
+          {/* 필드에 배치된 선수들 */}
+          {players.filter(p => p.position_x !== null).map(player => (
+            <div
+              key={player.id}
+              className="absolute cursor-move transform -translate-x-1/2 -translate-y-1/2"
+              style={{
+                left: `${player.position_x}%`,
+                top: `${player.position_y}%`
+              }}
+              draggable
+              onDragStart={(e) => onDragStart(e, player)}
+              onClick={() => onPlayerClick(player)}
+            >
+              {/* 선수 번호 원 */}
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                {player.jersey_number}
+              </div>
+              {/* 선수 이름 */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1">
+                <span className="bg-white text-gray-900 text-xs font-semibold px-2 py-1 rounded shadow-md whitespace-nowrap">
+                  {player.player_name}
+                </span>
+              </div>
             </div>
-            {/* 선수 이름 */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1">
-              <span className="bg-white text-gray-900 text-xs font-semibold px-2 py-1 rounded shadow-md whitespace-nowrap">
-                {player.player_name}
-              </span>
-            </div>
-          </div>
-        ))}
+          ))}
 
-        {/* 드롭 안내 텍스트 */}
-        {players.filter(p => p.position_x !== null).length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-gray-700 text-center font-semibold text-lg bg-white bg-opacity-80 px-4 py-2 rounded-lg">
-              선수를 여기로 드래그하여 배치하세요
-            </p>
-          </div>
-        )}
+          {/* 드롭 안내 텍스트 */}
+          {players.filter(p => p.position_x !== null).length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-gray-700 text-center font-semibold text-lg bg-white bg-opacity-80 px-4 py-2 rounded-lg">
+                선수를 여기로 드래그하여 배치하세요
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -74,9 +74,9 @@ export default function PlayerList({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md border">
+    <div className={`bg-white rounded-lg shadow-md border ${isOpen ? 'h-full flex flex-col' : 'h-auto'}`}>
       <div
-        className="p-4 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className={`p-4 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-colors ${isOpen ? 'border-b flex-shrink-0' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <h3 className="font-bold text-gray-900 text-base">
@@ -93,8 +93,8 @@ export default function PlayerList({
       </div>
 
       {isOpen && (
-        <div className="px-4 pb-4">
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+        <div className="flex-1 min-h-0 p-4">
+          <div className="h-full overflow-y-auto space-y-2">
             {allPlayers.map(player => (
               <div key={player.id} className="group border rounded-lg p-3 hover:bg-gray-50 transition-colors">
                 {editingPlayer === player.id ? (
