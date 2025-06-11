@@ -1,8 +1,29 @@
+import { useState, useEffect } from 'react'
+
 export default function SubstituteList({
                                          substitutes,
                                          onDragStart,
-                                         onRemoveFromSubstitutes
+                                         onTouchStart,
+                                         onTouchMove,
+                                         onTouchEnd,
+                                         onRemoveFromSubstitutes,
+                                         isDragging
                                        }) {
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  // 터치 디바이스 감지
+  useEffect(() => {
+    const checkTouchDevice = () => {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+    }
+
+    checkTouchDevice()
+
+    // 윈도우 리사이즈 시에도 다시 확인
+    window.addEventListener('resize', checkTouchDevice)
+    return () => window.removeEventListener('resize', checkTouchDevice)
+  }, [])
+
   const handleRemove = async (playerId) => {
     const success = await onRemoveFromSubstitutes(playerId)
     if (success) {
@@ -23,16 +44,28 @@ export default function SubstituteList({
           {substitutes.map(player => (
             <div
               key={player.id}
-              className="flex items-center justify-between p-3 bg-yellow-100 rounded cursor-move border hover:bg-yellow-200 transition-colors"
+              className={`group flex items-center justify-between p-3 bg-yellow-100 rounded cursor-move border hover:bg-yellow-200 transition-colors ${isDragging ? 'opacity-50' : ''}`}
+              // PC용 드래그 이벤트
               draggable
               onDragStart={(e) => onDragStart(e, player)}
+              // 모바일용 터치 이벤트
+              onTouchStart={(e) => onTouchStart(e, player)}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
             >
-              <span className="font-semibold text-gray-900">
-                #{player.jersey_number} {player.player_name}
+              <span className="font-semibold text-gray-900 flex-1">
+                #{player.jersey_number || ''} {player.player_name}
               </span>
               <button
-                onClick={() => handleRemove(player.id)}
-                className="text-red-600 hover:text-red-800 font-medium"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRemove(player.id)
+                }}
+                className={`text-red-600 hover:text-red-800 font-medium text-sm px-2 py-1 rounded transition-colors ${
+                  isTouchDevice
+                    ? 'opacity-100' // 터치 디바이스에서는 항상 표시
+                    : 'opacity-70 group-hover:opacity-100' // PC에서는 hover 시 더 진하게
+                }`}
               >
                 제외
               </button>

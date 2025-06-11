@@ -28,9 +28,17 @@ export default function EditFormation() {
   } = useFormation()
 
   const {
+    draggedPlayer,
+    isDragging,
+    fieldRef,
+    // PC용 이벤트
     handleDragStart,
     handleFieldDragOver,
     handleFieldDrop,
+    // 모바일용 이벤트
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     moveToSubstitutes
   } = useFieldInteractions({
     players,
@@ -65,9 +73,15 @@ export default function EditFormation() {
             <div className="flex-1 min-h-0">
               <PlayerList
                 allPlayers={allPlayers}
+                // PC용 이벤트
                 onDragStart={handleDragStart}
+                // 모바일용 이벤트
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
                 onRemovePlayer={removePlayer}
                 onUpdatePlayer={updatePlayer}
+                isDragging={isDragging}
               />
             </div>
           </div>
@@ -76,11 +90,18 @@ export default function EditFormation() {
           <div className="xl:col-span-2 min-h-[50vh] lg:min-h-[60vh] xl:min-h-[70vh]">
             <FootballField
               players={players}
+              // PC용 이벤트
               onDragStart={handleDragStart}
               onDragOver={handleFieldDragOver}
               onDrop={handleFieldDrop}
+              // 모바일용 이벤트
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               onPlayerClick={moveToSubstitutes}
               onSave={saveFormation}
+              isDragging={isDragging}
+              fieldRef={fieldRef}
             />
           </div>
 
@@ -88,8 +109,14 @@ export default function EditFormation() {
           <div className="xl:col-span-1 h-[calc(100vh-250px)]">
             <SubstituteList
               substitutes={substitutes}
+              // PC용 이벤트
               onDragStart={handleDragStart}
+              // 모바일용 이벤트
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               onRemoveFromSubstitutes={removeFromSubstitutes}
+              isDragging={isDragging}
             />
           </div>
         </div>

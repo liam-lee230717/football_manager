@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const POSITIONS = [
   { value: '', label: '포지션 선택' },
@@ -17,18 +17,36 @@ const POSITIONS = [
 export default function PlayerList({
                                      allPlayers,
                                      onDragStart,
+                                     onTouchStart,
+                                     onTouchMove,
+                                     onTouchEnd,
                                      onRemovePlayer,
-                                     onUpdatePlayer
+                                     onUpdatePlayer,
+                                     isDragging
                                    }) {
   const [isOpen, setIsOpen] = useState(true)
   const [editingPlayer, setEditingPlayer] = useState(null)
   const [editForm, setEditForm] = useState({ name: '', jersey: '', position: '' })
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  // 터치 디바이스 감지
+  useEffect(() => {
+    const checkTouchDevice = () => {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+    }
+
+    checkTouchDevice()
+
+    // 윈도우 리사이즈 시에도 다시 확인
+    window.addEventListener('resize', checkTouchDevice)
+    return () => window.removeEventListener('resize', checkTouchDevice)
+  }, [])
 
   const startEdit = (player) => {
     setEditingPlayer(player.id)
     setEditForm({
-      name: player.player_name,
-      jersey: player.jersey_number,
+      name: player.player_name || '',
+      jersey: player.jersey_number ? player.jersey_number.toString() : '',
       position: player.position_role || ''
     })
   }
@@ -44,8 +62,8 @@ export default function PlayerList({
     }
 
     const success = await onUpdatePlayer(playerId, {
-      player_name: editForm.name,
-      jersey_number: editForm.jersey ? parseInt(editForm.jersey) : null,
+      player_name: editForm.name.trim(),
+      jersey_number: editForm.jersey.trim() ? parseInt(editForm.jersey) : null,
       position_role: editForm.position || null
     })
 
@@ -113,6 +131,8 @@ export default function PlayerList({
                         onChange={(e) => setEditForm({ ...editForm, jersey: e.target.value })}
                         className="border border-gray-300 rounded px-3 py-2 text-sm font-medium text-gray-900 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         placeholder="등번호"
+                        min="1"
+                        max="99"
                       />
                     </div>
                     <select
@@ -144,13 +164,31 @@ export default function PlayerList({
                 ) : (
                   <div className="flex items-center justify-between">
                     <div
-                      className="flex-1 cursor-move"
+                      className={`flex-1 cursor-move ${isDragging ? 'opacity-50' : ''}`}
+                      style={{ touchAction: 'none' }}
+                      // PC용 드래그 이벤트
                       draggable
-                      onDragStart={(e) => onDragStart(e, player)}
-                      onClick={() => startEdit(player)}
+                      onDragStart={(e) => {
+                        console.log('선수 목록에서 PC 드래그 시작:', player.player_name)
+                        onDragStart(e, player)
+                      }}
+                      // 모바일용 터치 이벤트
+                      onTouchStart={(e) => {
+                        console.log('선수 목록에서 터치 시작:', player.player_name)
+                        onTouchStart(e, player)
+                      }}
+                      onTouchMove={(e) => {
+                        console.log('선수 목록에서 터치 이동')
+                        onTouchMove(e)
+                      }}
+                      onTouchEnd={(e) => {
+                        console.log('선수 목록에서 터치 종료')
+                        onTouchEnd(e)
+                      }}
+                      onClick={() => !isDragging && startEdit(player)}
                     >
                       <div className="font-semibold text-gray-900">
-                        #{player.jersey_number} {player.player_name}
+                        #{player.jersey_number || ''} {player.player_name}
                       </div>
                       <div className="text-sm text-gray-600">
                         {player.position_role && `${player.position_role} • `}
@@ -163,7 +201,11 @@ export default function PlayerList({
                         e.stopPropagation()
                         handleRemove(player.id, player.is_substitute)
                       }}
-                      className="opacity-0 group-hover:opacity-100 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium hover:bg-red-600 transition-all ml-2"
+                      className={`bg-red-500 text-white px-2 py-1 rounded text-xs font-medium hover:bg-red-600 transition-all ml-2 ${
+                        isTouchDevice
+                          ? 'opacity-100' // 터치 디바이스에서는 항상 표시
+                          : 'opacity-0 group-hover:opacity-100' // PC에서는 hover 시에만 표시
+                      }`}
                     >
                       삭제
                     </button>

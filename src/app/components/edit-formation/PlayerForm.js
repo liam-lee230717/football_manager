@@ -25,8 +25,8 @@ export default function PlayerForm({ onAddPlayer }) {
     }
 
     const success = await onAddPlayer({
-      player_name: playerName,
-      jersey_number: jerseyNumber ? parseInt(jerseyNumber) : null,
+      player_name: playerName.trim(),
+      jersey_number: jerseyNumber.trim() ? parseInt(jerseyNumber) : null,
       position_role: position || null
     })
 
@@ -57,6 +57,8 @@ export default function PlayerForm({ onAddPlayer }) {
           className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium"
           value={jerseyNumber}
           onChange={(e) => setJerseyNumber(e.target.value)}
+          min="1"
+          max="99"
         />
         <select
           className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium"

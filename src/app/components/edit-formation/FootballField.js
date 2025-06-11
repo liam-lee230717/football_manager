@@ -5,24 +5,36 @@ export default function FootballField({
                                         onDragStart,
                                         onDragOver,
                                         onDrop,
+                                        onTouchStart,
+                                        onTouchMove,
+                                        onTouchEnd,
                                         onPlayerClick,
                                         onSave,
-                                        onCapture
+                                        onCapture,
+                                        isDragging,
+                                        fieldRef // 부모에서 전달받는 fieldRef
                                       }) {
-  const fieldRef = useRef(null)
+  const localFieldRef = useRef(null)
+
+  // 부모에서 전달받은 fieldRef가 있으면 사용하고, 없으면 로컬 ref 사용
+  const currentFieldRef = fieldRef || localFieldRef
 
   const handleDrop = (e) => {
-    onDrop(e, fieldRef)
+    onDrop(e, currentFieldRef)
+  }
+
+  const handleTouchEnd = (e) => {
+    onTouchEnd(e, currentFieldRef)
   }
 
   const captureField = async () => {
-    if (!fieldRef.current) return
+    if (!currentFieldRef.current) return
 
     try {
       const domtoimage = (await import('dom-to-image')).default
-      const rect = fieldRef.current.getBoundingClientRect()
+      const rect = currentFieldRef.current.getBoundingClientRect()
 
-      const dataUrl = await domtoimage.toPng(fieldRef.current, {
+      const dataUrl = await domtoimage.toPng(currentFieldRef.current, {
         quality: 1.0,
         bgcolor: '#ffffff',
         width: rect.width,
@@ -90,29 +102,46 @@ export default function FootballField({
 
       <div className="flex-1 p-4">
         <div
-          ref={fieldRef}
+          ref={currentFieldRef}
           className="relative w-full h-full mx-auto bg-center bg-contain bg-no-repeat"
           style={{
             backgroundImage: "url('/Image/field.png')",
             backgroundSize: 'contain',
             maxWidth: '800px',
-            padding: '30px'
+            padding: '30px',
+            touchAction: 'none' // 터치 제스처 비활성화
           }}
+          // PC용 드래그 이벤트
           onDragOver={onDragOver}
           onDrop={handleDrop}
+          // 모바일용 터치 이벤트 - 필드 레벨에서만 처리
+          onTouchMove={(e) => {
+            onTouchMove(e)
+          }}
+          onTouchEnd={(e) => {
+            handleTouchEnd(e)
+          }}
         >
           {/* 필드에 배치된 선수들 */}
           {players.filter(p => p.position_x !== null).map(player => (
             <div
               key={player.id}
-              className="absolute cursor-move transform -translate-x-1/2 -translate-y-1/2"
+              className={`absolute cursor-move transform -translate-x-1/2 -translate-y-1/2 ${isDragging ? 'opacity-50' : ''}`}
               style={{
                 left: `${player.position_x}%`,
-                top: `${player.position_y}%`
+                top: `${player.position_y}%`,
+                touchAction: 'none' // 터치 제스처 비활성화
               }}
+              // PC용 드래그 이벤트
               draggable
-              onDragStart={(e) => onDragStart(e, player)}
-              onClick={() => onPlayerClick(player)}
+              onDragStart={(e) => {
+                onDragStart(e, player)
+              }}
+              // 모바일용 터치 이벤트
+              onTouchStart={(e) => {
+                onTouchStart(e, player)
+              }}
+              onClick={() => !isDragging && onPlayerClick(player)}
             >
               {/* 선수 번호 원 */}
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
