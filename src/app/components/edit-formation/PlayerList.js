@@ -28,18 +28,24 @@ export default function PlayerList({
   const [editingPlayer, setEditingPlayer] = useState(null)
   const [editForm, setEditForm] = useState({ name: '', jersey: '', position: '' })
   const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
 
-  // 터치 디바이스 감지
+  // 터치 디바이스 및 데스크톱 환경 감지
   useEffect(() => {
-    const checkTouchDevice = () => {
+    const checkDevice = () => {
       setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+      setIsDesktop(window.innerWidth >= 1280)
     }
 
-    checkTouchDevice()
+    checkDevice()
 
     // 윈도우 리사이즈 시에도 다시 확인
-    window.addEventListener('resize', checkTouchDevice)
-    return () => window.removeEventListener('resize', checkTouchDevice)
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1280)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const startEdit = (player) => {
@@ -91,8 +97,16 @@ export default function PlayerList({
     return '대기'
   }
 
+  const getContainerHeight = () => {
+    if (!isOpen) return 'auto'
+    return isDesktop ? '100%' : '400px'
+  }
+
   return (
-    <div className={`bg-white rounded-lg shadow-md border ${isOpen ? 'h-full flex flex-col' : 'h-auto'}`}>
+    <div
+      className={`bg-white rounded-lg shadow-md border ${isOpen ? 'xl:h-full xl:flex xl:flex-col flex flex-col' : 'h-auto'}`}
+      style={{ height: getContainerHeight() }}
+    >
       <div
         className={`p-4 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-colors ${isOpen ? 'border-b flex-shrink-0' : ''}`}
         onClick={() => setIsOpen(!isOpen)}

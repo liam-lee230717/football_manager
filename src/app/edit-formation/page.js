@@ -65,12 +65,12 @@ export default function EditFormation() {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* 선수 관리 섹션 */}
-          <div className="xl:col-span-1 flex flex-col h-[calc(100vh-250px)]">
-            <div className="flex-shrink-0">
+          <div className="xl:col-span-1 xl:flex xl:flex-col xl:h-[calc(100vh-250px)] space-y-4 xl:space-y-0">
+            <div className="xl:flex-shrink-0">
               <PlayerForm onAddPlayer={addPlayer} />
             </div>
 
-            <div className="flex-1 min-h-0">
+            <div className="xl:flex-1 xl:min-h-0 xl:mt-4">
               <PlayerList
                 allPlayers={allPlayers}
                 // PC용 이벤트
@@ -106,7 +106,7 @@ export default function EditFormation() {
           </div>
 
           {/* 교체 명단 섹션 */}
-          <div className="xl:col-span-1 h-[calc(100vh-250px)]">
+          <div className="xl:col-span-1 xl:h-[calc(100vh-250px)]">
             <SubstituteList
               substitutes={substitutes}
               // PC용 이벤트

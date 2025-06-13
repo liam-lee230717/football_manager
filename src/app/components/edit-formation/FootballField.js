@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 export default function FootballField({
                                         players,
@@ -15,9 +15,55 @@ export default function FootballField({
                                         fieldRef // 부모에서 전달받는 fieldRef
                                       }) {
   const localFieldRef = useRef(null)
+  const [screenSize, setScreenSize] = useState('desktop')
 
   // 부모에서 전달받은 fieldRef가 있으면 사용하고, 없으면 로컬 ref 사용
   const currentFieldRef = fieldRef || localFieldRef
+
+  // 화면 크기 감지
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+      if (width < 640) {
+        setScreenSize('mobile') // 640px 미만
+      } else if (width < 1024) {
+        setScreenSize('tablet') // 640px ~ 1024px
+      } else {
+        setScreenSize('desktop') // 1024px 이상
+      }
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
+  // 화면 크기에 따른 선수 아이콘 크기 결정
+  const getPlayerIconSize = () => {
+    switch (screenSize) {
+      case 'mobile':
+        return { width: 'w-8', height: 'h-8', text: 'text-xs' } // 32px
+      case 'tablet':
+        return { width: 'w-10', height: 'h-10', text: 'text-sm' } // 40px
+      default:
+        return { width: 'w-12', height: 'h-12', text: 'text-sm' } // 48px (기존)
+    }
+  }
+
+  // 화면 크기에 따른 선수 이름 폰트 크기
+  const getPlayerNameSize = () => {
+    switch (screenSize) {
+      case 'mobile':
+        return 'text-xs' // 매우 작은 텍스트
+      case 'tablet':
+        return 'text-xs' // 작은 텍스트
+      default:
+        return 'text-xs' // 기존 크기
+    }
+  }
+
+  const playerIconSize = getPlayerIconSize()
+  const playerNameSize = getPlayerNameSize()
 
   const handleDrop = (e) => {
     onDrop(e, currentFieldRef)
@@ -143,14 +189,17 @@ export default function FootballField({
               }}
               onClick={() => !isDragging && onPlayerClick(player)}
             >
-              {/* 선수 번호 원 */}
-              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                {player.jersey_number}
+              {/* 선수 번호 원 - 반응형 크기 */}
+              <div className={`${playerIconSize.width} ${playerIconSize.height} bg-blue-500 rounded-full flex items-center justify-center text-white ${playerIconSize.text} font-bold shadow-lg`}>
+                {player.jersey_number || ''}
               </div>
-              {/* 선수 이름 */}
+              {/* 선수 이름 - 반응형 크기 */}
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1">
-                <span className="bg-white text-gray-900 text-xs font-semibold px-2 py-1 rounded shadow-md whitespace-nowrap">
-                  {player.player_name}
+                <span className={`bg-white text-gray-900 ${playerNameSize} font-semibold px-1 py-0.5 rounded shadow-md whitespace-nowrap`}>
+                  {screenSize === 'mobile' && player.player_name.length > 4
+                    ? `${player.player_name.substring(0, 4)}...` // 모바일에서 긴 이름 줄임
+                    : player.player_name
+                  }
                 </span>
               </div>
             </div>
@@ -159,7 +208,9 @@ export default function FootballField({
           {/* 드롭 안내 텍스트 */}
           {players.filter(p => p.position_x !== null).length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-gray-700 text-center font-semibold text-lg bg-white bg-opacity-80 px-4 py-2 rounded-lg">
+              <p className={`text-gray-700 text-center font-semibold bg-white bg-opacity-80 px-4 py-2 rounded-lg ${
+                screenSize === 'mobile' ? 'text-sm' : 'text-lg'
+              }`}>
                 선수를 여기로 드래그하여 배치하세요
               </p>
             </div>
